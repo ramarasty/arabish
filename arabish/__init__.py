@@ -8,7 +8,7 @@ def file_path(name):
   return os.path.join(os.path.dirname(__file__), name)
 
 
-en_to_ar = json.loads(open(file_path('mapping.manual.json')).read())
+en_to_ar = json.loads(open(file_path('mapping.manual.json'), encoding='utf-8').read())
 
 NWORDS = {}
 path = file_path('ar.txt')
