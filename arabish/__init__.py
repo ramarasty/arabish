@@ -2,6 +2,7 @@
 import codecs
 import os
 import json
+from itertools import product
 
 def file_path(name):
   return os.path.join(os.path.dirname(__file__), name)
@@ -18,7 +19,7 @@ for word_count in word_counts:
     NWORDS[word] = int(n)
 
 def sort_by_frequency(words):
-  return sorted(words, key=NWORDS.get, reverse=True)
+  return sorted(words, key=lambda x: -1 if NWORDS.get(x) is None else NWORDS.get(x), reverse=True)
 
 
 def transliterate_word(english):
@@ -42,14 +43,28 @@ def transliterate_word(english):
   recur(english, '', True)
   return ret
 
-def transliterate(sentence, verbose=False):
-  words = sentence.split()
-  ret = []
+def transliterate(sentence, max=3, verbose=False):
+  words = sentence.lower().split()
+  rets = []
   for word in words:
     candidates = list(transliterate_word(word))
+
     if verbose:
       for word in candidates:
-        print word
-    ret.append(sort_by_frequency(candidates)[0])
-  return ' '.join(ret)
+        print(word)
 
+    freq_sort = sort_by_frequency(candidates)
+    rets.append(freq_sort)
+
+  # Take smallest of (word with least variations) or (max limit)
+  shortest = min([len(ret) for ret in rets])
+  shortest = max if shortest > max else shortest
+  rets = [ret[:shortest] for ret in rets]
+
+  # Generate list of strings from most to least likely
+  combinations_list = list(product(*rets))
+  combinations = []
+  for combination in combinations_list:
+    combinations.append(' '.join(combination))
+
+  return combinations
